@@ -50,3 +50,26 @@ onValue(msgRef, (snapshot) => {
     messagesDiv.appendChild(msgElement);
   });
 });
+// Typing indicator setup
+const typingRef = ref(db, "typing");
+
+messageInput.addEventListener("input", () => {
+  const username = usernameInput.value.trim();
+  if (!username) return;
+
+  set(typingRef, {
+    name: username,
+    isTyping: messageInput.value.length > 0
+  });
+});
+
+onValue(typingRef, (snapshot) => {
+  const typingData = snapshot.val();
+  const typingDiv = document.getElementById("typing-indicator");
+
+  if (typingData && typingData.isTyping && typingData.name !== usernameInput.value) {
+    typingDiv.style.opacity = 1;
+  } else {
+    typingDiv.style.opacity = 0;
+  }
+});
