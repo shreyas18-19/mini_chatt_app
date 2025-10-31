@@ -27,6 +27,7 @@ const messagesDiv = document.getElementById("messages");
 
 // Send message to Firebase
 sendButton.addEventListener("click", () => {
+  
   const username = usernameInput.value.trim();
   const message = messageInput.value.trim();
 
@@ -38,7 +39,9 @@ sendButton.addEventListener("click", () => {
     });
     messageInput.value = "";
   }
+  
 });
+
 
 // Listen for new messages (Real-time update)
 onValue(msgRef, (snapshot) => {
@@ -71,5 +74,77 @@ onValue(typingRef, (snapshot) => {
     typingDiv.style.opacity = 1;
   } else {
     typingDiv.style.opacity = 0;
+  }
+});
+sendButton.addEventListener("click", () => {
+  const username = usernameInput.value.trim();
+  const message = messageInput.value.trim();
+
+  if (username && message) {
+    push(msgRef, {
+      username: username,
+      text: message,
+      timestamp: Date.now() // 🕒 वेळ साठवली
+    });
+    messageInput.value = "";
+  }
+});
+onValue(msgRef, (snapshot) => {
+  messagesDiv.innerHTML = "";
+  const messages = snapshot.val();
+
+  for (let key in messages) {
+    const msg = messages[key];
+    const time = new Date(msg.timestamp).toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit"
+    }); // ⏰ time format
+
+    const msgElement = document.createElement("p");
+    msgElement.innerHTML = `<strong>${msg.username}</strong>: ${msg.text}
+      <span style="float:right; font-size:12px; color:#aaa;">${time}</span>`;
+    messagesDiv.appendChild(msgElement);
+  }
+});
+// Theme Toggle Logic
+const themeSwitch = document.getElementById("themeSwitch");
+const themeLabel = document.getElementById("themeLabel");
+
+// Check saved theme in localStorage
+if (localStorage.getItem("theme") === "light") {
+  document.body.classList.add("light-mode");
+  themeSwitch.checked = true;
+  themeLabel.textContent = "☀️ Light Mode";
+}
+
+themeSwitch.addEventListener("change", () => {
+  if (themeSwitch.checked) {
+    document.body.classList.add("light-mode");
+    localStorage.setItem("theme", "light");
+    themeLabel.textContent = "☀️ Light Mode";
+  } else {
+    document.body.classList.remove("light-mode");
+    localStorage.setItem("theme", "dark");
+    themeLabel.textContent = "🌙 Dark Mode";
+  }
+});
+// 🌙 Theme Toggle
+
+
+if (localStorage.getItem("theme") === "light") {
+  document.body.classList.add("light-mode");
+  themeSwitch.checked = true;
+  themeLabel.textContent = "☀️ Light Mode";
+}
+
+themeSwitch.addEventListener("change", () => {
+  if (themeSwitch.checked) {
+    document.body.classList.add("light-mode");
+    localStorage.setItem("theme", "light");
+    themeLabel.textContent = "☀️ Light Mode";
+  } else {
+    document.body.classList.remove("light-mode");
+    localStorage.setItem("theme", "dark");
+    themeLabel.textContent = "🌙 Dark Mode";
   }
 });
